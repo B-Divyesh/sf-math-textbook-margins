@@ -1,0 +1,8 @@
+{
+  "slug": "math-textbook-margins",
+  "title": "Math Textbook Margins",
+  "artifact_class": "static-web",
+  "smallest_useful_product": "Static web lesson wrapper: teacher supplies page links/owned excerpts and adds prediction, worked-step, and misconception prompts; students export a one-page answer record.",
+  "constraints": "Do not host or extract copyrighted textbook content; WCAG-conscious contrast and non-color cues are mandatory; learner responses should remain exportable.",
+  "monetization": "free"
+}
