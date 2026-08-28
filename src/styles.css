@@ -204,6 +204,7 @@ textarea { resize: vertical; line-height: 1.5; }
 input::placeholder, textarea::placeholder { color: color-mix(in srgb, var(--muted) 85%, transparent); opacity: 1; }
 .optional { color: var(--muted); font-size: .72rem; font-weight: 400; }
 .field-help { margin: -18px 0 0; color: var(--muted); font-size: .78rem; }
+.field-limit { color: var(--muted); font-size: .75rem; font-weight: 400; letter-spacing: 0; line-height: 1.35; }
 
 #prompt-list { margin-left: 68px; }
 .prompt-slip { position: relative; margin: 0 0 32px; padding: 28px; border: 2px solid var(--ink); background: var(--sheet); box-shadow: 7px 7px 0 color-mix(in srgb, var(--ink) 18%, transparent); }
@@ -226,6 +227,7 @@ input::placeholder, textarea::placeholder { color: color-mix(in srgb, var(--mute
 .empty-state h3 { margin: 12px 0; }
 .publish { margin-top: 24px; padding: 48px; background: var(--mustard); color: #172820; border: 2px solid #172820; display: grid; grid-template-columns: 1fr auto; gap: 24px 56px; align-items: center; box-shadow: 9px 9px 0 var(--coral); }
 .publish p { max-width: 65ch; }
+.publish .eyebrow { color: #172820; }
 .form-error { min-height: 24px; grid-column: 1 / -1; margin: 0; color: #7a1717; font-weight: 800; }
 
 .share-dialog { width: min(620px, calc(100% - 32px)); padding: 0; border: 2px solid var(--ink); background: var(--sheet); color: var(--ink); box-shadow: 12px 12px 0 var(--coral); }
@@ -247,6 +249,7 @@ input::placeholder, textarea::placeholder { color: color-mix(in srgb, var(--mute
 .lesson-sheet { min-width: 0; }
 .lesson-heading { padding-bottom: 40px; border-bottom: 2px solid var(--ink); }
 .lesson-heading h1 { font-size: clamp(2.5rem, 7vw, 5.4rem); }
+.lesson-heading h1, .student-prompt h2, .lesson-directions, .source-rail h2, .source-rail blockquote, .print-response { overflow-wrap: anywhere; word-break: break-word; }
 .lesson-directions { max-width: 65ch; font-size: 1.05rem; }
 .student-name { max-width: 360px; margin-top: 28px; }
 .progress-list { margin: 28px 0 56px; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
@@ -324,6 +327,23 @@ input::placeholder, textarea::placeholder { color: color-mix(in srgb, var(--mute
   .finish .button { grid-column: 1; width: 100%; }
 }
 
+/* The dark riso band uses night ink, not the light paper token. That preserves
+   contrast for its mustard eyebrow and coral folio marks in both theme paths. */
+:root[data-theme="dark"] .how {
+  background: var(--paper);
+  color: var(--ink);
+}
+:root[data-theme="dark"] .how .eyebrow { color: var(--mustard); }
+:root[data-theme="dark"] .three-beats li { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
+:root[data-theme="dark"] .three-beats p { color: color-mix(in srgb, var(--ink) 82%, transparent); }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .how { background: var(--paper); color: var(--ink); }
+  :root:not([data-theme="light"]) .how .eyebrow { color: var(--mustard); }
+  :root:not([data-theme="light"]) .three-beats li { border-color: color-mix(in srgb, var(--ink) 45%, transparent); }
+  :root:not([data-theme="light"]) .three-beats p { color: color-mix(in srgb, var(--ink) 82%, transparent); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
 }
@@ -346,6 +366,7 @@ input::placeholder, textarea::placeholder { color: color-mix(in srgb, var(--mute
   .student-prompt label { font-size: 8pt; }
   .student-prompt textarea { min-height: 0; height: auto; field-sizing: content; padding: 3px 0; border: 0; background: none; font: 10pt/1.35 var(--body); resize: none; }
   .student-prompt label { display: none; }
+  .field-limit { display: none; }
   .print-response { display: block; white-space: pre-wrap; font: 10pt/1.35 var(--body); }
   @page { size: A4; margin: 13mm; }
 }

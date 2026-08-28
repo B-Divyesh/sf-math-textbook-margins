@@ -14,7 +14,7 @@ Teachers who already have legal learning material but want a lightweight alterna
 - Encodes the lesson into a shareable URL; no account or server database is needed.
 - Gates every teacher note until the student has written a response.
 - Saves student progress locally and distinguishes states with symbols, labels, borders, and color.
-- Prints a compact one-page answer record or saves it through the browser’s “Save as PDF” option.
+- Prints a compact one-page answer record or saves it through the browser’s “Save as PDF” option. To keep that promise reliable, titles are capped at 80 characters and each prompt and student response at 240 characters.
 - Works on phone and desktop, supports keyboard use and reduced motion, and caches the application shell for return visits offline.
 - Provides standalone [privacy](./privacy/index.html) and [terms](./terms/index.html) pages.
 

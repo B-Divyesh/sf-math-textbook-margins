@@ -1,4 +1,4 @@
-const CACHE = 'margins-shell-v2';
+const CACHE = 'margins-shell-v3';
 const PAGES = ['/', '/privacy/', '/terms/'];
 
 self.addEventListener('install', (event) => {

@@ -1,5 +1,5 @@
 import './styles.css';
-import { decodeLesson, encodeLesson, lessonUrl } from './codec';
+import { decodeLesson, encodeLesson, LESSON_LIMITS, lessonUrl } from './codec';
 import type { Lesson, MarginPrompt, PromptKind, StudentRecord } from './types';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
@@ -173,7 +173,7 @@ function renderBuilder(): void {
         <section class="lesson-details" aria-labelledby="details-title">
           <div class="section-heading"><span>01</span><div><h2 id="details-title">Name the reading</h2><p>Nothing is uploaded. The source opens separately.</p></div></div>
           <div class="field-grid">
-            <label>Lesson title <span aria-hidden="true">*</span><input name="title" required maxlength="90" value="${escapeHtml(lesson.title)}" autocomplete="off"></label>
+            <label>Lesson title <span aria-hidden="true">*</span><input name="title" required maxlength="${LESSON_LIMITS.title}" value="${escapeHtml(lesson.title)}" autocomplete="off"></label>
             <label>Source label <input name="sourceLabel" maxlength="80" value="${escapeHtml(lesson.sourceLabel)}" placeholder="e.g. Chapter 4, page 82"></label>
             <label class="wide">Source link <span class="optional">optional</span><input name="sourceUrl" type="url" inputmode="url" value="${escapeHtml(lesson.sourceUrl)}" placeholder="https://…" aria-describedby="source-help"></label>
             <p id="source-help" class="field-help wide">Use a school-approved or public link. Margins never copies or hosts the source.</p>
@@ -303,7 +303,7 @@ function promptEditor(prompt: MarginPrompt, index: number, total: number): strin
           <button class="remove" type="button" data-remove="${prompt.id}" aria-label="Remove pause ${index + 1}">Remove</button>
         </div>
       </div>
-      <label>Student prompt <span aria-hidden="true">*</span><textarea name="question-${prompt.id}" required rows="2" maxlength="500">${escapeHtml(prompt.question)}</textarea></label>
+      <label>Student prompt <span aria-hidden="true">*</span><textarea name="question-${prompt.id}" required rows="2" maxlength="${LESSON_LIMITS.question}" aria-describedby="question-limit-${prompt.id}">${escapeHtml(prompt.question)}</textarea><span id="question-limit-${prompt.id}" class="field-limit">Up to ${LESSON_LIMITS.question} characters so a three-pause record prints on one A4 page.</span></label>
       <label>Note revealed after they answer <span aria-hidden="true">*</span><textarea name="reveal-${prompt.id}" required rows="3" maxlength="700">${escapeHtml(prompt.reveal)}</textarea></label>
     </fieldset>
   `;
@@ -452,7 +452,7 @@ function studentPrompt(prompt: MarginPrompt, index: number, lesson: Lesson, reco
     <article class="student-prompt ${revealed ? 'is-revealed' : ''}" data-card="${prompt.id}" tabindex="-1">
       <header><span class="step-number">${String(index + 1).padStart(2, '0')}</span><div><p>${escapeHtml(kindLabels[prompt.kind])}</p><span data-state="${prompt.id}">${revealed ? '✓ Revealed' : response.trim() ? '◒ Answered — note ready' : '○ Write before revealing'}</span></div></header>
       <h2>${escapeHtml(prompt.question)}</h2>
-      <label>Your response<textarea data-response="${prompt.id}" rows="5" maxlength="600" ${revealed ? 'readonly' : ''}>${escapeHtml(response)}</textarea></label>
+      <label>Your response<textarea data-response="${prompt.id}" rows="5" maxlength="${LESSON_LIMITS.response}" aria-describedby="response-limit-${prompt.id}" ${revealed ? 'readonly' : ''}>${escapeHtml(response)}</textarea><span id="response-limit-${prompt.id}" class="field-limit">Up to ${LESSON_LIMITS.response} characters so your answer record stays on one A4 page.</span></label>
       <div class="print-response"><strong>Your response:</strong> ${escapeHtml(response)}</div>
       ${revealed ? `<section class="reveal-note" aria-label="Teacher note"><p class="eyebrow">✓ Now reveal</p><p>${escapeHtml(prompt.reveal)}</p></section>` : `<button class="button reveal-button" data-reveal="${prompt.id}" type="button" ${response.trim() ? '' : 'disabled'}>Reveal the note underneath ↓</button>`}
     </article>

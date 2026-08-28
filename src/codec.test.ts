@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { decodeLesson, encodeLesson } from './codec';
+import { decodeLesson, encodeLesson, LESSON_LIMITS } from './codec';
 import type { Lesson } from './types';
 
 const lesson: Lesson = {
@@ -26,5 +26,13 @@ describe('lesson link codec', () => {
   it('rejects unsafe identifiers and source protocols', () => {
     expect(() => decodeLesson(encodeLesson({ ...lesson, id: '\"><script>' }))).toThrow();
     expect(() => decodeLesson(encodeLesson({ ...lesson, sourceUrl: 'javascript:alert(1)' }))).toThrow();
+  });
+
+  it('rejects lesson content beyond the one-page record limits', () => {
+    expect(() => decodeLesson(encodeLesson({ ...lesson, title: 'x'.repeat(LESSON_LIMITS.title + 1) }))).toThrow();
+    expect(() => decodeLesson(encodeLesson({
+      ...lesson,
+      prompts: [{ ...lesson.prompts[0], question: 'x'.repeat(LESSON_LIMITS.question + 1) }],
+    }))).toThrow();
   });
 });

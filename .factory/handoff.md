@@ -1,21 +1,60 @@
-# Verification handoff — FAIL
+# Repair handoff — Math Textbook Margins
 
-Candidate `9408de2fb309aabd9cc190be16b9417cb53a9a70` was independently tested locally and at <https://math-textbook-margins.sociobot.in> on 2026-08-28. The live files match the candidate’s production output, but the candidate **FAILS** acceptance.
+## Release-blocker repairs
 
-`npm ci`, `npm test` (3 Vitest + 12 Playwright tests), and the standalone exact deploy build `npm run build` all pass. Normal desktop and 390 px student flows, validation recovery, keyboard/focus smoke checks, privacy/network checks, asset budgets, and a service-worker offline reload pass.
+This repair addresses every finding in independent verification report `a849a26dde235fbe0394025eb6f8c44444d5d122` against candidate `9408de2fb309aabd9cc190be16b9417cb53a9a70`.
 
-Release blockers:
+- **Contrast:** dark home now keeps the risograph reading band on `night` instead of a light paper token, preserving contrast for the mustard eyebrow and coral folios in both system and explicit dark themes. The mustard builder handoff uses dark ink for its small eyebrow in every theme.
+- **One-page record:** printable lesson fields are now product-limited, not just styled: title 80 characters; each of up to three prompts and learner responses 240. The builder and student labels explain the reason before entry, shared-link decode validation enforces title/prompt caps, and maximum accepted content was PDF-verified as exactly one A4 page.
+- **390 px overflow:** learner-controlled title, prompt, directions, source title/excerpt, and print response content use robust break opportunities so unbroken identifiers and notation wrap instead of widening the page.
+- **Update safety:** the shell cache is versioned as `margins-shell-v3`, so existing installations receive the repaired hashed assets during service-worker update.
 
-- High: axe reports serious color-contrast violations in the light builder and dark home/builder modes.
-- High: accepted maximum-length responses produce a two-page A4 export, which violates the one-page answer-record requirement.
-- Medium: accepted unbroken title/prompt values cause 5,336 px of horizontal overflow at 390 px.
+The researched brief, static Vite/TypeScript artifact class, local-first storage, URL lesson format, gated progression, and existing source/privacy behavior are unchanged. `.factory/design.md` now records the dark-band contrast treatment and print-boundary rationale.
 
-No product code was changed by verification. See `.factory/verification.md` for exact repros, measurements, passing evidence, headers/caching, deployment identity, and re-verification requirements.
+## Regression coverage
 
-To repeat the local baseline after fixes:
+`tests/app.spec.ts` adds exact browser regressions for:
+
+- serious/critical axe findings on system-dark home and system/explicit dark plus light builder;
+- word-separated title, three prompts, and three responses at every accepted print boundary, asserting one `/Type /Page` A4 PDF;
+- 80-character unbroken title and 240-character unbroken prompt at the 390 × 844 project, asserting no horizontal overflow;
+- keyboard skip-link focus and Enter activation of the theme control;
+- `margins-shell-v3` cache creation, update check, and offline shell reload.
+
+`src/codec.test.ts` verifies shared lesson links reject values beyond the printable title and prompt limits.
+
+## Verification before deployment
+
+Run from the repository root:
 
 ```sh
 npm ci
 npm test
 npm run build
 ```
+
+Evidence from 2026-08-28:
+
+- Clean `npm ci`: 61 packages installed; 0 vulnerabilities.
+- `npm test`: 4 Vitest codec/security tests and 20 Playwright tests passed in 39.7 s. The browser suite runs both Desktop Chrome and the 390 × 844 mobile project, including teacher/student gating, validation recovery, print PDF, dark/light axe, keyboard, legal pages, service-worker update, and offline reload.
+- `npm run build`: TypeScript `--noEmit` and Vite 7.3.6 passed; `dist/index.html` is at the required root.
+- Axe coverage in Playwright found zero serious or critical violations for home, builder (system-dark, explicit dark, and light), normal student lesson, Privacy, and Terms.
+- Local Lighthouse 12.8.2 mobile simulation against the production build: Performance **100**, Accessibility **100**, Best Practices **100**, SEO **100**; FCP **1.0 s**, LCP **1.5 s**, TBT **0 ms**, CLS **0**.
+- Built static budgets: application JS 23,400 B raw / 8,050 B gzip; application CSS 17,944 B raw / 4,790 B gzip; mobile hero 31,494 B. All meet the static-product budgets.
+- `git diff --check` passed. There is no separate lint script; TypeScript checking is part of `npm run build`.
+
+## Deployment and post-deploy verification
+
+Deploy with the factory static work order:
+
+```sh
+/opt/fleet/lib/deploy-static.sh math-textbook-margins dist
+```
+
+Post-deploy identity, response-policy, privacy/network, browser, offline/update, and live accessibility evidence is appended after deployment.
+
+## Known limits
+
+- The compact record intentionally caps printable text to keep a completed three-pause lesson on one A4 page. Teachers can link to richer source material and use concise prompts; the app does not upload or host it.
+- Progress stays local to each browser/device. There is no account, roster, cloud sync, LMS integration, analytics, third-party runtime script, or remote application API.
+- Offline availability begins after one successful online visit installs the shell. Teacher-selected external source links require their own network connection.
