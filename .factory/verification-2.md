@@ -1,8 +1,11 @@
 # Independent verification 2 — FAIL
 
-**Work order:** `math-textbook-margins-verify-2`  
-**Candidate tested:** `6a1817186b7d7ceba270b85f07ade6775ec2fd9f`  
-**Live URL tested:** <https://math-textbook-margins.sociobot.in>  
+**Work order:** `math-textbook-margins-verify-2`
+
+**Candidate tested:** `6a1817186b7d7ceba270b85f07ade6775ec2fd9f`
+
+**Live URL tested:** <https://math-textbook-margins.sociobot.in>
+
 **Date:** 2026-08-28
 
 ## Verdict
