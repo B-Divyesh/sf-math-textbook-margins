@@ -35,6 +35,8 @@ test('teacher creates a gated lesson and student completes it', async ({ page, c
   await expect(page.getByText('Margin complete')).toBeVisible();
   await expect(page.getByRole('button', { name: /Print \/ save answer record/ })).toBeVisible();
   await expect(page.getByText('Revealed', { exact: true })).toHaveCount(3);
+  const pdf = await page.pdf({ format: 'A4', printBackground: true });
+  expect(pdf.toString('latin1').match(/\/Type\s*\/Page\b/g)?.length).toBe(1);
 });
 
 test('builder works at 390px without horizontal overflow', async ({ page }) => {
@@ -60,4 +62,13 @@ test('privacy and terms are real standalone pages', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Privacy');
   await page.goto('/terms/');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Terms');
+});
+
+test('the cached shell reopens offline', async ({ page, context }) => {
+  await page.goto('/');
+  await page.evaluate(() => navigator.serviceWorker.ready);
+  await page.reload();
+  await context.setOffline(true);
+  await page.reload();
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('thinking');
 });

@@ -393,7 +393,7 @@ function renderStudent(encoded: string): void {
           </div>
           ${complete ? `
             <section class="finish" aria-labelledby="finish-title">
-              <span aria-hidden="true">✓</span><div><p class="eyebrow">Margin complete</p><h2 id="finish-title">Keep a record of your thinking.</h2><p>Print this page or choose “Save as PDF.” Only your name, prompts, and answers appear in the record.</p></div>
+              <span aria-hidden="true">✓</span><div><p class="eyebrow">Margin complete</p><h2 id="finish-title" tabindex="-1">Keep a record of your thinking.</h2><p>Print this page or choose “Save as PDF.” Only your name, prompts, and answers appear in the record.</p></div>
               <button class="button primary" id="export-record" type="button">Print / save answer record</button>
               <button class="button text-button" id="clear-record" type="button">Clear my answers</button>
             </section>` : ''}
