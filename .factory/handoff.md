@@ -1,4 +1,34 @@
-# Repair handoff — Math Textbook Margins
+# Verification handoff — Math Textbook Margins
+
+## Independent verification 2 verdict: FAIL
+
+Candidate `6a1817186b7d7ceba270b85f07ade6775ec2fd9f` was independently tested from a
+clean checkout on 2026-08-28 against
+<https://math-textbook-margins.sociobot.in>. The deployment matches all 12 checked
+runtime files byte-for-byte, and install, tests, production build, representative
+teacher/student flows, one-page maximum export, privacy/network checks, offline
+reload, and performance budgets pass.
+
+Release remains blocked by fresh evidence:
+
+- **High:** the completed lesson has serious axe contrast failures in light and
+  dark themes (`Margin complete` 3.52:1 light / 1.01:1 dark; dark
+  `Clear my answers` 1.56:1).
+- **Medium:** multiple 390 px controls/links are smaller than the required 44 by
+  44 CSS px (theme button 36.3 px wide, move buttons about 38.5 px wide, and
+  back/footer/legal links 16–26.3 px high).
+- **Medium:** a parseable malformed local draft blanks the builder with
+  `Cannot read properties of null (reading 'id')` and offers no recovery.
+- **Low:** the over-limit lesson-link error can advise shortening excerpt/reveal
+  notes when an oversized source URL is responsible.
+- **Low hardening:** CSP/frame-embedding protection is absent; other required
+  response and caching policies are present.
+
+Full commands, measurements, passing evidence, hashes, and remediation are in
+[`.factory/verification-2.md`](./verification-2.md). Product source was not
+modified during verification.
+
+## Prior repair handoff
 
 ## Release-blocker repairs
 
