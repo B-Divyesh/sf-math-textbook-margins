@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { decodeLesson, encodeLesson, LESSON_LIMITS } from './codec';
+import { decodeLesson, encodeLesson, isLessonData, LESSON_LIMITS } from './codec';
 import type { Lesson } from './types';
 
 const lesson: Lesson = {
@@ -20,7 +20,15 @@ describe('lesson link codec', () => {
 
   it('rejects malformed payloads', () => {
     expect(() => decodeLesson(encodeLesson({ ...lesson, version: 2 } as unknown as Lesson))).toThrow();
+    expect(() => decodeLesson(encodeLesson({ ...lesson, prompts: [null] } as unknown as Lesson))).toThrow();
     expect(() => decodeLesson('not-json')).toThrow();
+  });
+
+  it('validates every persisted draft field before rendering', () => {
+    expect(isLessonData(lesson)).toBe(true);
+    expect(isLessonData({ version: 1, prompts: [null] })).toBe(false);
+    expect(isLessonData({ ...lesson, sourceLabel: null })).toBe(false);
+    expect(isLessonData({ ...lesson, prompts: [{ ...lesson.prompts[0], kind: 'stale-kind' }] })).toBe(false);
   });
 
   it('rejects unsafe identifiers and source protocols', () => {

@@ -24,6 +24,8 @@ State distinctions never depend on these colors: `○ To do`, `◒ Answered`, an
 
 The dark reading band explicitly uses `night #132019` behind the mustard annotation and coral folio marks, rather than inheriting the light paper token. This retains the riso contrast relationship in both system-dark and explicitly selected dark mode.
 
+Completion is a mustard paper surface in both themes, so every label and text action inside it uses fixed `ink #172820` rather than theme-relative muted or body tokens. This keeps the final state visually consistent with the builder handoff while maintaining readable contrast in light, explicit dark, and system dark modes.
+
 ## Type
 
 - Display: Georgia, Charter, “Times New Roman”, serif — editorial textbook voice, bold/italic used like proof annotations.
@@ -33,6 +35,8 @@ The dark reading band explicitly uses `night #132019` behind the mustard annotat
 ## Spacing and layout
 
 An 8px base rhythm with 4px micro-spacing: 8, 12, 16, 24, 32, 48, 64, 96. Interactive targets are at least 44px. The desktop student view uses a narrow source rail and one generous response sheet; the phone view drops decorative labels, stacks all content, and makes the current task the first visible object. Paper offsets and imperfect one-pixel rules add physical depth without card-grid repetition.
+
+The 44px target is enforced in both dimensions for compact icon, reorder, back, footer, recovery, and legal-page actions; visible glyphs and underlined labels remain visually light within the larger tap area.
 
 The single-A4 answer record is a product constraint, not merely a print stylesheet: titles are limited to 80 characters, and each of the three questions and learner answers to 240. The composing and response labels explain the cap before content is entered. Long unbroken notation, identifiers, and pasted URL-like strings use `overflow-wrap: anywhere` in the learner view so they remain readable at 390 px.
 

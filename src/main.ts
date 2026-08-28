@@ -1,5 +1,5 @@
 import './styles.css';
-import { decodeLesson, encodeLesson, LESSON_LIMITS, lessonUrl } from './codec';
+import { decodeLesson, encodeLesson, isLessonData, LESSON_LIMITS, lessonUrl } from './codec';
 import type { Lesson, MarginPrompt, PromptKind, StudentRecord } from './types';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
@@ -7,6 +7,7 @@ if (!app) throw new Error('Application root is missing.');
 
 const DRAFT_KEY = 'mtm.teacher-draft.v1';
 const THEME_KEY = 'mtm.theme';
+const LINK_LIMIT = 7500;
 const kindLabels: Record<PromptKind, string> = {
   predict: 'Make a prediction',
   work: 'Sketch a step',
@@ -148,18 +149,54 @@ function renderHome(): void {
   });
 }
 
-function loadDraft(): Lesson {
+function loadDraft(): { lesson: Lesson; recovered: boolean } {
   try {
-    const parsed = JSON.parse(localStorage.getItem(DRAFT_KEY) ?? '') as Lesson;
-    return parsed.version === 1 && Array.isArray(parsed.prompts) ? parsed : starterLesson();
+    const stored = localStorage.getItem(DRAFT_KEY);
+    if (stored === null) return { lesson: starterLesson(), recovered: false };
+    const parsed = JSON.parse(stored) as unknown;
+    if (isLessonData(parsed)) return { lesson: parsed, recovered: false };
   } catch {
-    return starterLesson();
+    // A partial browser write or stale schema should never strand the builder.
   }
+  try { localStorage.removeItem(DRAFT_KEY); } catch { /* Storage may be unavailable. */ }
+  return { lesson: starterLesson(), recovered: true };
+}
+
+function linkLimitGuidance(lesson: Lesson): { message: string; selector: string } {
+  const candidates = [
+    { label: 'source link', selector: '[name="sourceUrl"]', clear: (item: Lesson) => ({ ...item, sourceUrl: '' }) },
+    { label: 'permitted excerpt', selector: '[name="excerpt"]', clear: (item: Lesson) => ({ ...item, excerpt: '' }) },
+    { label: 'reveal notes', selector: `[name="reveal-${lesson.prompts[0]?.id}"]`, clear: (item: Lesson) => ({ ...item, prompts: item.prompts.map((prompt) => ({ ...prompt, reveal: '' })) }) },
+    { label: 'student directions', selector: '[name="instructions"]', clear: (item: Lesson) => ({ ...item, instructions: '' }) },
+    { label: 'student prompts', selector: `[name="question-${lesson.prompts[0]?.id}"]`, clear: (item: Lesson) => ({ ...item, prompts: item.prompts.map((prompt) => ({ ...prompt, question: '' })) }) },
+    { label: 'source label', selector: '[name="sourceLabel"]', clear: (item: Lesson) => ({ ...item, sourceLabel: '' }) },
+    { label: 'lesson title', selector: '[name="title"]', clear: (item: Lesson) => ({ ...item, title: '' }) },
+  ].map((candidate) => ({
+    ...candidate,
+    reduction: lessonUrl(lesson).length - lessonUrl(candidate.clear(lesson)).length,
+  })).filter((candidate) => candidate.reduction > 0)
+    .sort((a, b) => b.reduction - a.reduction);
+
+  let shortened = lesson;
+  const labels: string[] = [];
+  for (const candidate of candidates) {
+    shortened = candidate.clear(shortened);
+    labels.push(candidate.label);
+    if (lessonUrl(shortened).length <= LINK_LIMIT) break;
+  }
+  const readable = labels.length > 1
+    ? `${labels.slice(0, -1).join(', ')} and ${labels.at(-1)}`
+    : labels[0] ?? 'lesson content';
+  return {
+    message: `This lesson is too long for a reliable link. Shorten the ${readable}.`,
+    selector: candidates[0]?.selector ?? '[name="title"]',
+  };
 }
 
 function renderBuilder(): void {
   document.title = 'Build a lesson — Math Textbook Margins';
-  let lesson = loadDraft();
+  const draft = loadDraft();
+  let lesson = draft.lesson;
 
   const draw = () => {
     app.innerHTML = shell(`
@@ -168,6 +205,7 @@ function renderBuilder(): void {
         <p class="eyebrow">Teacher composing table</p>
         <h1>Build a margin lesson.</h1>
         <p>Link to material you may share. Students must answer each prompt before the note underneath is revealed.</p>
+        ${draft.recovered ? '<p class="recovery-note" role="status">◇ A saved draft could not be read, so a fresh starter lesson is ready. Your builder is safe to use.</p>' : ''}
       </section>
       <form id="lesson-form" class="builder-form" novalidate>
         <section class="lesson-details" aria-labelledby="details-title">
@@ -247,8 +285,10 @@ function renderBuilder(): void {
         return;
       }
       const url = lessonUrl(lesson);
-      if (url.length > 7500) {
-        if (error) error.textContent = '! This lesson is too long for a reliable link. Shorten the excerpt or reveal notes.';
+      if (url.length > LINK_LIMIT) {
+        const guidance = linkLimitGuidance(lesson);
+        if (error) error.textContent = `! ${guidance.message}`;
+        document.querySelector<HTMLElement>(guidance.selector)?.focus();
         return;
       }
       try {

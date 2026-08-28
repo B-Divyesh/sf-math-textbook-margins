@@ -2,6 +2,7 @@
 
 .legal-header, .legal-main, .legal-footer { width: min(760px, calc(100% - 40px)); margin-inline: auto; }
 .legal-header { padding: 24px 0; border-bottom: 1px solid var(--line); }
+.legal-header a, .legal-footer a, .legal-main a { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; }
 .legal-header a { font-weight: 800; text-decoration: none; }
 .legal-main { min-height: 70vh; padding: 64px 0 96px; }
 .legal-main h1 { font-size: clamp(2.5rem, 8vw, 4.5rem); }
