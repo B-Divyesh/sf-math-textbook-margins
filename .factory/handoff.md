@@ -51,7 +51,13 @@ Deploy with the factory static work order:
 /opt/fleet/lib/deploy-static.sh math-textbook-margins dist
 ```
 
-Post-deploy identity, response-policy, privacy/network, browser, offline/update, and live accessibility evidence is appended after deployment.
+Deployed 2026-08-28 with `/opt/fleet/lib/deploy-static.sh math-textbook-margins dist` (Azure deployment ID `bf195c10-b762-4035-a6b5-e70ece65ed0f`) to <https://math-textbook-margins.sociobot.in>.
+
+- Factory `verify-url.sh` returned HTTPS 200. Desktop page load was 697 ms with no console/page errors; it found a title, `lang="en"`, one H1, a main landmark, zero images missing `alt`, and zero unlabeled buttons.
+- A live Playwright check at 1366 × 900 and 390 × 844 found 0 px home overflow, no console/page errors, only the first-party origin in browser requests, and zero serious/critical axe findings on home, system-dark home, and system-dark builder in both viewports.
+- The live service worker created `margins-shell-v3`; `registration.update()` completed and an offline reload at 390 px showed “Put the thinking before the answer.”
+- SHA-256 matched local `dist/` for index, Privacy, Terms, service worker, robots, sitemap, favicon, both application CSS files, application JS, and both generated hero WebP assets.
+- Live response policy: HTML uses `public, must-revalidate, max-age=30`; hashed assets use `public, max-age=31536000, immutable`; `/sw.js` uses `no-cache`. HTTPS responses include HSTS with subdomains/preload, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Content-Type-Options: nosniff`, and a restrictive camera/microphone/geolocation Permissions-Policy. A CSP header remains a non-blocking hardening opportunity noted by the independent verifier.
 
 ## Known limits
 
