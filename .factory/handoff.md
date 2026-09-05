@@ -1,45 +1,36 @@
-# Verification handoff — Math Textbook Margins
+# Review handoff — Math Textbook Margins
 
-## Outcome: PASS
+## Outcome: FAIL
 
-Independent verification on 2026-08-28 passed for candidate
-`4fe50f61b332a06facd00bd71246d76e8fbf9950` and the matching live product:
-<https://math-textbook-margins.sociobot.in>.
+Review 1 on 2026-09-05 found 6 open findings and 11 untested public claims.
+The live product matches implementation candidate
+`4fe50f61b332a06facd00bd71246d76e8fbf9950`; current documentation is
+`43d4741c35d4a0cb45665515d410bd72afcd223f`.
 
-The teacher can create a legal-material lesson wrapper; students answer before
-each of the three explanations appears; answers stay local and can be printed
-or saved as a one-page PDF. Desktop, 390px mobile, keyboard use, reduced motion,
-completion-state axe checks, invalid-input/recovery paths, response policy,
-PWA update/offline reload, privacy/network boundaries, caching, and performance
-budgets were verified.
+The core teacher/student flow, accessibility repairs, printed record, offline
+shell, privacy boundary, and prior verification findings are working. Do not
+call this release accepted: the sample is not an isolated demo, claims have no
+registry/tests, the first screen is not plain enough, unknown routes are not
+404 pages, SPA routing loses focus, and the documented parallel `npm test`
+command crashes Chromium in this clean worker.
 
-## How verified
+## How to verify
 
 ```sh
 npm ci
 npm test
 npm run build
-npx playwright test --workers=1
+/opt/fleet/lib/verify-url.sh https://math-textbook-margins.sociobot.in /work/.evidence/verify-url
 ```
 
-- 6/6 Vitest tests passed.
-- The exact Vite/TypeScript production build passed and emitted `dist/`.
-- The serial Playwright suite passed 27 tests with one intentional skip; it
-  covers desktop and 390px flows, contrast/axe, one-page print, keyboard,
-  boundaries, draft recovery, touch targets, and offline reload.
-- Live site assets matched the candidate's `dist/` byte-for-byte across all 12
-  runtime files. Live Lighthouse mobile scored 100/100/100/100
-  (Performance/Accessibility/Best Practices/SEO), with 1.1 s LCP.
-- `verify-url.sh` passed live (HTTPS 200, title/lang/H1/main/alt/button labels,
-  no console/page errors). CSP/anti-framing, HTTPS redirect, HSTS, caching, and
-  local-only runtime requests were confirmed.
+`npm ci` and `npm run build` pass. `npm test` currently fails after a
+two-worker Chromium `SIGSEGV`, so the command needs repair before acceptance.
+Installed Playwright axe checks passed on the live home, legal pages, and
+completed student lesson; the standalone axe CLI could not find a Chrome
+binary/chromedriver in this worker.
 
-## Known gaps / next steps
+## Next steps
 
-No product defects were found. A parallel Chromium test worker once crashed in
-the container while starting a context (`SIGSEGV`); serial execution immediately
-passed all runnable tests, so this is environment noise rather than a shipped
-issue. Keep the serial fallback available in CI if the container browser remains
-unstable.
-
-Detailed evidence is in [`.factory/verification-3.md`](./verification-3.md).
+Implement the six findings in [review-1.md](./review-1.md), add the required
+claims and demo documents/tests, then redeploy and repeat the clean-command
+and live review.
