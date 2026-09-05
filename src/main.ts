@@ -569,7 +569,7 @@ function focusRoute(): void {
   if (!heading || !announcement) return;
   heading.setAttribute('tabindex', '-1');
   heading.focus({ preventScroll: true });
-  announcement.textContent = `Page changed: ${heading.textContent?.trim() ?? 'new page'}.`;
+  announcement.textContent = `Page changed: ${heading.textContent?.trim() ?? 'new page'}`;
 }
 
 function route(moveFocus = false): void {
