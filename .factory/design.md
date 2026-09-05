@@ -62,4 +62,8 @@ Prompt sheet:
 
 Generation: Azure AI Foundry factory image deployment via `/opt/fleet/lib/gen-image.sh`, generated 2026-08-28. The selected original is stored in `assets/src/` with the prompt sidecar and shipped as optimized WebP. Generated imagery is disclosed in the footer.
 
+The Open Graph image (`public/og-image.webp`, 1200 × 630) and Apple touch image
+(`public/apple-touch-icon.png`, 180 × 180) are crops derived from that same
+original hero. They introduce no additional subject matter or license.
+
 Authored icons are simple inline SVG or CSS geometry and are original to this repository.

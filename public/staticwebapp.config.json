@@ -1,7 +1,13 @@
 {
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/assets/*", "/*.{css,js,png,jpg,jpeg,gif,webp,svg,ico,json,txt}"]
+    "exclude": ["/*"]
+  },
+  "responseOverrides": {
+    "404": {
+      "rewrite": "/404.html",
+      "statusCode": 404
+    }
   },
   "globalHeaders": {
     "X-Content-Type-Options": "nosniff",
@@ -12,6 +18,8 @@
   },
   "routes": [
     { "route": "/assets/*", "headers": { "cache-control": "public, max-age=31536000, immutable" } },
+    { "route": "/demo", "rewrite": "/demo/index.html" },
+    { "route": "/demo/", "rewrite": "/demo/index.html" },
     { "route": "/sw.js", "headers": { "cache-control": "no-cache" } }
   ]
 }

@@ -1,0 +1,79 @@
+[
+  {
+    "id": "free-use",
+    "claim": "Free to use.",
+    "where": "Landing facts, README",
+    "test": "npm test -- --grep @claim:free-use",
+    "sandbox": "Fresh demo context; a learner completes the sample without a payment or checkout step."
+  },
+  {
+    "id": "no-account",
+    "claim": "No account is needed.",
+    "where": "Landing facts, README",
+    "test": "npm test -- --grep @claim:no-account",
+    "sandbox": "Fresh demo context; the complete sample opens and accepts a response without sign-in."
+  },
+  {
+    "id": "no-textbook-upload",
+    "claim": "No textbook upload is needed.",
+    "where": "Landing facts, README, Terms",
+    "test": "npm test -- --grep @claim:no-textbook-upload",
+    "sandbox": "Fresh demo context; the full sample lesson is ready before any file or source is supplied."
+  },
+  {
+    "id": "answers-local",
+    "claim": "Answers stay in this browser.",
+    "where": "Landing facts, learner view, Privacy, README",
+    "test": "npm test -- --grep @claim:answers-local",
+    "sandbox": "Fresh demo context; record all requests while answering, then reload and observe the response remains."
+  },
+  {
+    "id": "no-server-database",
+    "claim": "Lessons have no server database.",
+    "where": "Landing privacy section, README",
+    "test": "npm test -- --grep @claim:no-server-database",
+    "sandbox": "Fresh demo context; completing the local sample creates no non-GET or third-party request."
+  },
+  {
+    "id": "answer-before-reveal",
+    "claim": "Each note stays closed until a student writes a response.",
+    "where": "How it works, builder, README",
+    "test": "npm test -- --grep @claim:answer-before-reveal",
+    "sandbox": "Fresh demo context; confirm Reveal is disabled empty, then enable it with a response and reveal the note."
+  },
+  {
+    "id": "local-progress-states",
+    "claim": "Progress is stored locally and uses named, symbol states.",
+    "where": "Learner progress list, README",
+    "test": "npm test -- --grep @claim:local-progress-states",
+    "sandbox": "Fresh demo context; answer, reload, and observe the response and the Answered / ◒ state."
+  },
+  {
+    "id": "one-page-record",
+    "claim": "Students can print a one-page answer record.",
+    "where": "Landing privacy section, learner completion, README",
+    "test": "npm test -- --grep @claim:one-page-record",
+    "sandbox": "Fresh demo context; complete the sample and generate an A4 PDF with one page."
+  },
+  {
+    "id": "phone-desktop",
+    "claim": "The tool works on phones and desktops.",
+    "where": "Landing privacy section, README",
+    "test": "npm test -- --grep @claim:phone-desktop",
+    "sandbox": "Fresh desktop and dedicated 390px demo contexts; enter an answer and reveal the note in both."
+  },
+  {
+    "id": "keyboard-reduced-motion",
+    "claim": "Keyboard controls and reduced motion are supported.",
+    "where": "Landing privacy section, README",
+    "test": "npm test -- --grep @claim:keyboard-reduced-motion",
+    "sandbox": "Fresh demo context with reduced motion; use Space to reveal a note and measure near-instant motion."
+  },
+  {
+    "id": "offline-return",
+    "claim": "The shell returns after a first visit offline.",
+    "where": "Landing privacy section, README",
+    "test": "npm test -- --grep @claim:offline-return",
+    "sandbox": "Dedicated fresh browser context; visit the demo, wait for the worker, set offline, and reload the demo."
+  }
+]

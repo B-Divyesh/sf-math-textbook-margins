@@ -1,5 +1,5 @@
-const CACHE = 'margins-shell-v4';
-const PAGES = ['/', '/privacy/', '/terms/'];
+const CACHE = 'margins-shell-v5';
+const PAGES = ['/', '/demo/', '/privacy/', '/terms/'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then(async (cache) => {

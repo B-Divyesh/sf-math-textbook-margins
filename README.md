@@ -1,59 +1,67 @@
 # Math Textbook Margins
 
-Math Textbook Margins is a free, local-first lesson wrapper for math teachers. It places up to three active-recall pauses beside a textbook page, public resource, or school-approved PDF link: students predict, sketch a step, and check a misconception before each teacher note is revealed.
+Math Textbook Margins helps math teachers add three answer-before-reveal pauses to a lesson link or permitted excerpt. Students predict, sketch a step, and check an idea before each teacher note opens.
 
-Live product: <https://math-textbook-margins.sociobot.in>
+Try the complete algebra sample: <https://math-textbook-margins.sociobot.in/demo>
 
 ## Who it is for
 
-Teachers who already have legal learning material but want a lightweight alternative to a separate worksheet or LMS quiz. The app does not upload, host, or extract textbook content.
+Math teachers using a textbook page, public resource, or school-approved PDF link. The product does not host or extract textbook content.
 
-## What v1 does
+## What it does
 
-- Builds a three-pause lesson with a source link or short permitted excerpt.
-- Encodes the lesson into a shareable URL; no account or server database is needed.
-- Gates every teacher note until the student has written a response.
-- Saves student progress locally and distinguishes states with symbols, labels, borders, and color.
-- Prints a compact one-page answer record or saves it through the browser’s “Save as PDF” option. To keep that promise reliable, titles are capped at 80 characters and each prompt and student response at 240 characters.
-- Works on phone and desktop, supports keyboard use and reduced motion, and caches the application shell for return visits offline.
-- Provides standalone [privacy](./privacy/index.html) and [terms](./terms/index.html) pages.
+- Free to use. No account or textbook upload is needed.
+- Creates one shareable lesson link with up to three prompts.
+- Keeps answers and progress in the learner’s browser.
+- Uses named symbols and borders as well as color for lesson states.
+- Prints a one-page answer record within the documented input limits.
+- Works on phone and desktop with keyboard controls and reduced motion.
+- Caches the shell for a return visit offline.
 
-## Develop
+The sample uses the `demo:` local-storage namespace. Resetting it removes only sample state. Starting for real discards sample state before opening the lesson builder.
 
-Requires Node.js 20 or newer.
+## Run locally
 
-```sh
-npm install
-npm run dev
-```
-
-Open the local URL printed by Vite. No environment variables or external services are required at runtime.
-
-## Test and build
-
-Playwright 1.58.2 is pinned. In the factory image its Chromium browser is preinstalled; elsewhere, run `npx playwright install chromium` once.
+Requires Node.js 20 or newer. Playwright 1.58.2 is pinned. Install Chromium once outside the factory image with `npx playwright install chromium`.
 
 ```sh
+npm ci
 npm test
 npm run build
 ```
 
-`npm test` runs codec unit tests, a production TypeScript/Vite build, desktop and 390px browser flows, and axe serious/critical accessibility checks. The exact deploy command is `npm run build`; its output is `dist/`, with `dist/index.html` at the root.
+`npm test` runs unit checks, a production build, and serial desktop and 390px browser checks. Serial browser execution is deliberate because the clean worker can crash Chromium when it creates concurrent contexts. The production output is `dist/`, with `dist/index.html` at its root.
 
-To inspect the production build:
+To run locally:
+
+```sh
+npm run dev
+```
+
+To inspect the production output:
 
 ```sh
 npm run preview
 ```
 
-## Privacy and content boundaries
+## Verify public claims
 
-Drafts and answers use browser local storage. Lesson content lives inside the URL fragment, which browsers do not send as part of an HTTP request, but anyone receiving the link can read it. Do not put confidential student information in a lesson. Only link to or quote material you are permitted to share.
+Every public claim is listed in [`.factory/claims.json`](.factory/claims.json). From the clean setup above, run its declared `npm test -- --grep @claim:<id>` command. Each command starts from `/demo` and checks an observable outcome.
 
-## Project notes
+## Deploy
 
-The product brief is in [`.factory/brief.json`](./.factory/brief.json), the visual and asset provenance record is in [`.factory/design.md`](./.factory/design.md), and release verification is in [`.factory/handoff.md`](./.factory/handoff.md).
+The factory deploys this static product from `dist/` to its product subdomain. The deploy configuration is [public/staticwebapp.config.json](public/staticwebapp.config.json); it keeps the demo route, legal pages, security headers, and the designed 404 response.
+
+## Privacy and content limits
+
+Lesson prompts are encoded in the share-link fragment. Browsers do not send fragments in HTTP requests, but anyone with the link can read its contents. Do not put student names or confidential material in a lesson. Use only source links and excerpts you may share.
+
+Read the standalone [privacy policy](privacy/index.html) and [terms](terms/index.html).
+
+## Project records
+
+The researched brief is in [`.factory/brief.json`](.factory/brief.json), the visual and asset provenance record is in [`.factory/design.md`](.factory/design.md), and the release handoff is in [`.factory/handoff.md`](.factory/handoff.md).
 
 ## License
 
-MIT. See [LICENSE](./LICENSE).
+MIT. See [LICENSE](LICENSE).

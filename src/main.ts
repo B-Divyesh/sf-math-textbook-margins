@@ -1,5 +1,5 @@
 import './styles.css';
-import { decodeLesson, encodeLesson, isLessonData, LESSON_LIMITS, lessonUrl } from './codec';
+import { decodeLesson, isLessonData, LESSON_LIMITS, lessonUrl } from './codec';
 import type { Lesson, MarginPrompt, PromptKind, StudentRecord } from './types';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
@@ -7,6 +7,8 @@ if (!app) throw new Error('Application root is missing.');
 
 const DRAFT_KEY = 'mtm.teacher-draft.v1';
 const THEME_KEY = 'mtm.theme';
+const DEMO_PREFIX = 'demo:';
+const DEMO_THEME_KEY = `${DEMO_PREFIX}${THEME_KEY}`;
 const LINK_LIMIT = 7500;
 const kindLabels: Record<PromptKind, string> = {
   predict: 'Make a prediction',
@@ -40,39 +42,74 @@ function starterLesson(): Lesson {
   };
 }
 
+function sampleLesson(): Lesson {
+  return {
+    version: 1,
+    id: 'sample-equal-steps',
+    title: 'Equal steps, equal expressions',
+    sourceLabel: 'Your assigned algebra page',
+    sourceUrl: '',
+    excerpt: 'An equation stays balanced when the same operation is applied to both sides.',
+    instructions: 'Read the note. Answer each prompt before opening the next explanation.',
+    prompts: [
+      { id: 'sample-predict', kind: 'predict', question: 'If we add 4 to only the left side of an equation, will it still be true? Explain your prediction.', reveal: 'An equation behaves like a balance. Changing only one side usually breaks the equality.' },
+      { id: 'sample-work', kind: 'work', question: 'For x − 4 = 9, write the next step that keeps both sides equal.', reveal: 'Add 4 to both sides: x − 4 + 4 = 9 + 4.' },
+      { id: 'sample-check', kind: 'check', question: 'A learner writes x = 9 − 4. What idea did they miss?', reveal: 'They reversed the operation on only one side. The same operation must be applied to both sides.' },
+    ],
+  };
+}
+
+function isDemoMode(): boolean {
+  return location.pathname === '/demo' || location.pathname === '/demo/' || new URLSearchParams(location.search).get('demo') === '1';
+}
+
+function clearDemoStorage(): void {
+  for (let index = localStorage.length - 1; index >= 0; index -= 1) {
+    const key = localStorage.key(index);
+    if (key?.startsWith(DEMO_PREFIX)) localStorage.removeItem(key);
+  }
+}
+
 function escapeHtml(value: string): string {
   const element = document.createElement('div');
   element.textContent = value;
   return element.innerHTML;
 }
 
-function shell(content: string, mode = ''): string {
+function shell(content: string, mode = '', demo = false): string {
   return `
     <header class="site-header">
       <a class="wordmark" href="#/" aria-label="Math Textbook Margins home">
         <span aria-hidden="true" class="registration-mark">M</span>
         <span>Math Textbook<br><em>Margins</em></span>
       </a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="/demo">Demo</a>
+        <a href="/#/build">Build lesson</a>
+        <a href="/privacy/">Privacy</a>
+      </nav>
       <div class="header-actions">
         <span id="connection" class="connection" role="status">${navigator.onLine ? '● Online' : '◇ Offline — saved work still works'}</span>
         <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch color theme">◐ <span>Theme</span></button>
       </div>
     </header>
+    ${demo ? `<aside class="demo-banner" aria-label="Demo controls"><p><strong>Demo — sample data, nothing is saved</strong><span> Your real lesson data is not read or changed.</span></p><div><button id="reset-demo" type="button">Reset demo</button><a id="start-real" href="/#/build">Start for real</a></div></aside>` : ''}
     <main id="main" class="${mode}">${content}</main>
     <footer class="site-footer">
-      <p>Private by default. Lessons and answers stay in your browser or shared link.</p>
+      <p>Math lesson prompts before explanations.</p>
       <nav aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav>
-      <p class="art-note">Hero artwork generated for this project with Azure AI Foundry.</p>
+      <p class="art-note">Built by <a href="https://sociobot.in" rel="noopener noreferrer">Param Factory</a> · v1.1.0 · Hero artwork generated for this project with Azure AI Foundry.</p>
     </footer>
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <div id="route-announcement" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
   `;
 }
 
-function wireShell(): void {
+function wireShell(demo = false): void {
   document.querySelector('#theme-toggle')?.addEventListener('click', () => {
     const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
     document.documentElement.dataset.theme = next;
-    localStorage.setItem(THEME_KEY, next);
+    localStorage.setItem(demo ? DEMO_THEME_KEY : THEME_KEY, next);
   });
   const updateConnection = () => {
     const status = document.querySelector('#connection');
@@ -95,18 +132,18 @@ function showToast(message: string, action?: { label: string; run: () => void })
 }
 
 function renderHome(): void {
-  document.title = 'Math Textbook Margins — Pause before the answer';
+  document.title = 'Math Textbook Margins — Math lesson pauses';
   app.innerHTML = shell(`
     <section class="hero" aria-labelledby="home-title">
       <div class="hero-copy">
-        <p class="eyebrow">A quiet layer for active math reading</p>
-        <h1 id="home-title">Put the thinking <em>before</em> the answer.</h1>
-        <p class="lede">Wrap any legal textbook page or PDF link with three small pauses: predict, sketch a step, and check the idea.</p>
+        <p class="eyebrow">Math teacher lesson tool</p>
+        <h1 id="home-title">Add three math pauses before explanations.</h1>
+        <p class="lede">For math teachers who want students to write before seeing each explanation.</p>
         <div class="hero-actions">
-          <a class="button primary" href="#/build">Make a lesson <span aria-hidden="true">→</span></a>
-          <button class="button secondary" id="try-sample" type="button">Try a student lesson</button>
+          <div class="hero-action"><a class="button primary" href="/demo">Try it with sample data <span aria-hidden="true">→</span></a><span>Open a complete algebra lesson.</span></div>
+          <div class="hero-action"><a class="button secondary" href="#/build">Make a lesson</a><span>Create a shareable student link.</span></div>
         </div>
-        <p class="microcopy">Free. No account. No textbook upload. Student answers stay on their device.</p>
+        <ul class="plain-facts"><li>Free to use</li><li>No account or textbook upload</li><li>Answers stay in this browser</li></ul>
       </div>
       <figure class="hero-art">
         <picture>
@@ -116,37 +153,20 @@ function renderHome(): void {
       </figure>
     </section>
     <section class="how" aria-labelledby="how-title">
-      <p class="eyebrow">One reading, three margins</p>
-      <h2 id="how-title">Interrupt the urge to peek.</h2>
+      <p class="eyebrow">How it works</p>
+      <h2 id="how-title">Build one lesson in three steps.</h2>
       <ol class="three-beats">
-        <li><span aria-hidden="true">01</span><h3>Predict</h3><p>Commit to an idea before the worked explanation appears.</p></li>
-        <li><span aria-hidden="true">02</span><h3>Sketch</h3><p>Write the next move in words, notation, or a quick text sketch.</p></li>
-        <li><span aria-hidden="true">03</span><h3>Check</h3><p>Name a misconception, then export one compact answer record.</p></li>
+        <li><span aria-hidden="true">01</span><h3>Add three prompts</h3><p>Ask for a prediction, a worked step, and a misconception check.</p></li>
+        <li><span aria-hidden="true">02</span><h3>Share one lesson link</h3><p>Students open the assignment beside the original source.</p></li>
+        <li><span aria-hidden="true">03</span><h3>Require answers first</h3><p>Each note stays closed until a student writes a response.</p></li>
       </ol>
     </section>
     <section class="teacher-note" aria-labelledby="teacher-title">
-      <div><p class="eyebrow">Made to sit beside your material</p><h2 id="teacher-title">Keep the textbook. Add the pause.</h2></div>
-      <p>Margins stores no PDF and extracts no content. Link to material you are allowed to share, add a short permitted excerpt if useful, then copy one self-contained lesson link.</p>
+      <div><p class="eyebrow">Content and privacy limits</p><h2 id="teacher-title">What this tool does not do.</h2></div>
+      <div><p>Margins does not upload, host, or extract textbook content.</p><p>Share only material you may use. Lessons have no server database.</p><p>Students can print a one-page answer record. The tool works on phones and desktops.</p><p>Keyboard controls and reduced motion are supported. The shell returns after a first visit offline.</p></div>
     </section>
   `, 'home');
   wireShell();
-  document.querySelector('#try-sample')?.addEventListener('click', () => {
-    const sample: Lesson = {
-      version: 1,
-      id: 'sample-equal-steps',
-      title: 'Equal steps, equal expressions',
-      sourceLabel: 'Your assigned algebra page',
-      sourceUrl: '',
-      excerpt: 'Imagine a balance: whatever operation is applied to one side must also be applied to the other.',
-      instructions: 'Read the short note, then answer each margin without peeking ahead.',
-      prompts: [
-        { id: 'sample-predict', kind: 'predict', question: 'If we add 4 to only the left side of an equation, will it still be true? Explain your prediction.', reveal: 'An equation behaves like a balance. Changing only one side usually breaks the equality.' },
-        { id: 'sample-work', kind: 'work', question: 'For x − 4 = 9, write the next step that keeps both sides equal.', reveal: 'Add 4 to both sides: x − 4 + 4 = 9 + 4.' },
-        { id: 'sample-check', kind: 'check', question: 'A learner writes x = 9 − 4. What idea did they miss?', reveal: 'They reversed the operation on only one side. The same operation must be applied to both sides.' },
-      ],
-    };
-    location.hash = `/lesson/${encodeLesson(sample)}`;
-  });
 }
 
 function loadDraft(): { lesson: Lesson; recovered: boolean } {
@@ -202,8 +222,8 @@ function renderBuilder(): void {
     app.innerHTML = shell(`
       <section class="builder-intro">
         <a class="back-link" href="#/">← Home</a>
-        <p class="eyebrow">Teacher composing table</p>
-        <h1>Build a margin lesson.</h1>
+        <p class="eyebrow">Teacher lesson builder</p>
+        <h1>Build a math lesson with three pauses.</h1>
         <p>Link to material you may share. Students must answer each prompt before the note underneath is revealed.</p>
         ${draft.recovered ? '<p class="recovery-note" role="status">◇ A saved draft could not be read, so a fresh starter lesson is ready. Your builder is safe to use.</p>' : ''}
       </section>
@@ -224,7 +244,7 @@ function renderBuilder(): void {
           <div class="section-heading"><span>02</span><div><h2 id="prompts-title">Set the pauses</h2><p>Prompt, response, then reveal. Reorder with the arrow buttons.</p></div></div>
           <div id="prompt-list">
             ${lesson.prompts.length ? lesson.prompts.map((prompt, index) => promptEditor(prompt, index, lesson.prompts.length)).join('') : `
-              <div class="empty-state"><span aria-hidden="true">□</span><h3>The margin is blank.</h3><p>Add a prediction, a worked step, or a check to make this lesson useful.</p></div>`}
+              <div class="empty-state"><span aria-hidden="true">□</span><h3>No pauses in this lesson.</h3><p>Add a prediction, a worked step, or a check for students.</p></div>`}
           </div>
           <div class="add-prompt" aria-label="Add a prompt">
             <span>Add:</span>
@@ -235,7 +255,7 @@ function renderBuilder(): void {
           </div>
         </section>
         <section class="publish" aria-labelledby="publish-title">
-          <div><p class="eyebrow">03 · Hand it over</p><h2 id="publish-title">Create the student link.</h2><p>The lesson is packed into the link itself. Anyone with it can open the prompts; only the student’s browser keeps their answers.</p></div>
+          <div><p class="eyebrow">03 · Share the lesson</p><h2 id="publish-title">Create the student lesson link.</h2><p>The link contains the prompts. Each student browser keeps its own answers.</p></div>
           <button class="button primary large" type="submit">Create student link <span aria-hidden="true">→</span></button>
           <p id="form-error" class="form-error" role="alert"></p>
         </section>
@@ -356,7 +376,7 @@ function showShareDialog(url: string, copied: boolean): void {
     <form method="dialog">
       <button class="dialog-close" aria-label="Close share lesson dialog">×</button>
       <p class="eyebrow">${copied ? '✓ Link copied' : 'Lesson ready'}</p>
-      <h2>Hand this to students.</h2>
+      <h2>Share this lesson with students.</h2>
       <p>The prompts are part of this link. Their answers are not.</p>
       <label>Student lesson link<textarea id="share-url" readonly rows="4">${escapeHtml(url)}</textarea></label>
       <div class="dialog-actions">
@@ -373,8 +393,8 @@ function showShareDialog(url: string, copied: boolean): void {
   });
 }
 
-function studentStorageKey(lesson: Lesson): string {
-  return `mtm.student.${lesson.id}.v1`;
+function studentStorageKey(lesson: Lesson, demo = false): string {
+  return `${demo ? DEMO_PREFIX : ''}mtm.student.${lesson.id}.v1`;
 }
 
 function renderStudent(encoded: string): void {
@@ -385,10 +405,20 @@ function renderStudent(encoded: string): void {
     renderBrokenLesson();
     return;
   }
-  document.title = `${lesson.title} — Math Textbook Margins`;
+  renderStudentLesson(lesson);
+}
+
+function renderDemo(): void {
+  renderStudentLesson(sampleLesson(), true);
+}
+
+function renderStudentLesson(lesson: Lesson, demo = false): void {
+  const titleStem = lesson.title.length > 35 ? `${lesson.title.slice(0, 34)}…` : lesson.title;
+  document.title = demo ? 'Demo — Math Textbook Margins' : `${titleStem} — Math Textbook Margins`;
+  const storageKey = studentStorageKey(lesson, demo);
   let record: StudentRecord;
   try {
-    record = JSON.parse(localStorage.getItem(studentStorageKey(lesson)) ?? '') as StudentRecord;
+    record = JSON.parse(localStorage.getItem(storageKey) ?? '') as StudentRecord;
     if (!record.responses || !Array.isArray(record.revealed)) throw new Error();
   } catch {
     record = { name: '', responses: {}, revealed: [], updatedAt: new Date().toISOString() };
@@ -396,7 +426,7 @@ function renderStudent(encoded: string): void {
 
   const save = () => {
     record.updatedAt = new Date().toISOString();
-    localStorage.setItem(studentStorageKey(lesson), JSON.stringify(record));
+    localStorage.setItem(storageKey, JSON.stringify(record));
   };
   const draw = () => {
     const complete = lesson.prompts.length > 0 && lesson.prompts.every((prompt) => record.revealed.includes(prompt.id));
@@ -433,14 +463,14 @@ function renderStudent(encoded: string): void {
           </div>
           ${complete ? `
             <section class="finish" aria-labelledby="finish-title">
-              <span aria-hidden="true">✓</span><div><p class="eyebrow">Margin complete</p><h2 id="finish-title" tabindex="-1">Keep a record of your thinking.</h2><p>Print this page or choose “Save as PDF.” Only your name, prompts, and answers appear in the record.</p></div>
+              <span aria-hidden="true">✓</span><div><p class="eyebrow">Lesson complete</p><h2 id="finish-title" tabindex="-1">Export your answer record.</h2><p>Print this page or choose “Save as PDF.” The record contains your name, prompts, and answers.</p></div>
               <button class="button primary" id="export-record" type="button">Print / save answer record</button>
               <button class="button text-button" id="clear-record" type="button">Clear my answers</button>
             </section>` : ''}
         </section>
       </div>
-    `, 'student');
-    wireShell();
+    `, 'student', demo);
+    wireShell(demo);
     wireStudent();
     if (complete) document.body.classList.add('lesson-complete'); else document.body.classList.remove('lesson-complete');
   };
@@ -479,6 +509,14 @@ function renderStudent(encoded: string): void {
       draw();
       showToast('Answers cleared.', { label: 'Undo', run: () => { record = previous; save(); draw(); } });
     });
+    if (demo) {
+      document.querySelector('#reset-demo')?.addEventListener('click', () => {
+        clearDemoStorage();
+        record = { name: '', responses: {}, revealed: [], updatedAt: new Date().toISOString() };
+        draw();
+      });
+      document.querySelector('#start-real')?.addEventListener('click', clearDemoStorage);
+    }
   };
   draw();
 }
@@ -494,7 +532,7 @@ function studentPrompt(prompt: MarginPrompt, index: number, lesson: Lesson, reco
       <h2>${escapeHtml(prompt.question)}</h2>
       <label>Your response<textarea data-response="${prompt.id}" rows="5" maxlength="${LESSON_LIMITS.response}" aria-describedby="response-limit-${prompt.id}" ${revealed ? 'readonly' : ''}>${escapeHtml(response)}</textarea><span id="response-limit-${prompt.id}" class="field-limit">Up to ${LESSON_LIMITS.response} characters so your answer record stays on one A4 page.</span></label>
       <div class="print-response"><strong>Your response:</strong> ${escapeHtml(response)}</div>
-      ${revealed ? `<section class="reveal-note" aria-label="Teacher note"><p class="eyebrow">✓ Now reveal</p><p>${escapeHtml(prompt.reveal)}</p></section>` : `<button class="button reveal-button" data-reveal="${prompt.id}" type="button" ${response.trim() ? '' : 'disabled'}>Reveal the note underneath ↓</button>`}
+      ${revealed ? `<section class="reveal-note" aria-label="Teacher note"><p class="eyebrow">✓ Teacher note</p><p>${escapeHtml(prompt.reveal)}</p></section>` : `<button class="button reveal-button" data-reveal="${prompt.id}" type="button" ${response.trim() ? '' : 'disabled'}>Reveal the note underneath ↓</button>`}
     </article>
   `;
 }
@@ -505,25 +543,50 @@ function renderBrokenLesson(): void {
     <section class="error-page">
       <span aria-hidden="true">!</span>
       <p class="eyebrow">Lesson link problem</p>
-      <h1>This margin could not be opened.</h1>
+      <h1>This lesson could not be opened.</h1>
       <p>The link may be incomplete or from an unsupported version. Ask your teacher to copy the complete link again.</p>
       <a class="button primary" href="#/">Go to Margins home</a>
     </section>`);
   wireShell();
 }
 
-function route(): void {
+function renderNotFound(): void {
+  document.title = 'Page not found — Math Textbook Margins';
+  app.innerHTML = shell(`
+    <section class="error-page">
+      <span aria-hidden="true">?</span>
+      <p class="eyebrow">Page not found</p>
+      <h1>This page does not exist.</h1>
+      <p>Use the home page to open the demo or build a lesson.</p>
+      <a class="button primary" href="#/">Go to the home page</a>
+    </section>`);
+  wireShell();
+}
+
+function focusRoute(): void {
+  const heading = document.querySelector<HTMLElement>('main h1');
+  const announcement = document.querySelector<HTMLElement>('#route-announcement');
+  if (!heading || !announcement) return;
+  heading.setAttribute('tabindex', '-1');
+  heading.focus({ preventScroll: true });
+  announcement.textContent = `Page changed: ${heading.textContent?.trim() ?? 'new page'}.`;
+}
+
+function route(moveFocus = false): void {
   document.querySelectorAll<HTMLDialogElement>('dialog[open]').forEach((dialog) => dialog.close());
   window.scrollTo(0, 0);
   const hash = location.hash.slice(1) || '/';
-  if (hash === '/build') renderBuilder();
+  if (isDemoMode()) renderDemo();
+  else if (hash === '/build') renderBuilder();
   else if (hash.startsWith('/lesson/')) renderStudent(hash.slice('/lesson/'.length));
-  else renderHome();
+  else if (hash === '/') renderHome();
+  else renderNotFound();
+  if (moveFocus) requestAnimationFrame(focusRoute);
 }
 
-const savedTheme = localStorage.getItem(THEME_KEY);
+const savedTheme = localStorage.getItem(isDemoMode() ? DEMO_THEME_KEY : THEME_KEY);
 if (savedTheme === 'dark' || savedTheme === 'light') document.documentElement.dataset.theme = savedTheme;
-addEventListener('hashchange', route);
+addEventListener('hashchange', () => route(true));
 route();
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
