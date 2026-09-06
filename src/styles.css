@@ -182,7 +182,6 @@ h3 { font-size: 1.35rem; }
 .plain-facts li { display: flex; align-items: center; gap: 8px; }
 .plain-facts li::before { content: "✓"; color: var(--success); font-weight: 800; }
 .hero-art { position: relative; margin: 0; transform: rotate(1.5deg); }
-.hero-art::before { content: "SOURCE + THINKING"; position: absolute; z-index: 1; top: -24px; left: 24px; padding: 7px 14px; background: var(--mustard); color: #172820; font-size: .68rem; font-weight: 800; letter-spacing: .14em; transform: rotate(-4deg); }
 .hero-art img { aspect-ratio: 3 / 2; border: 2px solid var(--ink); object-fit: cover; box-shadow: 14px 16px 0 color-mix(in srgb, var(--coral) 72%, transparent); }
 
 .how { padding: 96px clamp(20px, 7vw, 108px); background: var(--ink); color: var(--paper); }
@@ -307,7 +306,6 @@ input::placeholder, textarea::placeholder { color: color-mix(in srgb, var(--mute
   body { font-size: 17px; }
   .connection { display: none; }
   .hero { min-height: auto; grid-template-columns: 1fr; padding-top: 56px; }
-  .hero-art::before { display: none; }
   .three-beats, .teacher-note { grid-template-columns: 1fr; }
   .three-beats { gap: 56px; }
   .field-grid, #prompt-list, .add-prompt { margin-left: 0; }

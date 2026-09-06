@@ -15,10 +15,10 @@
   },
   {
     "id": "no-textbook-upload",
-    "claim": "No textbook upload is needed.",
+    "claim": "This tool does not upload, host, or extract textbook content.",
     "where": "Landing facts, README, Terms",
     "test": "npm test -- --grep @claim:no-textbook-upload",
-    "sandbox": "Fresh demo context; the full sample lesson is ready before any file or source is supplied."
+    "sandbox": "Fresh demo context; the full sample is ready before any file or source is supplied, and no file-upload control exists."
   },
   {
     "id": "answers-local",
